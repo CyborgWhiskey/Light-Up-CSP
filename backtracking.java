@@ -40,7 +40,7 @@ public class backtracking {
 
                     //Gets the constraints for the current board and adds them to affected variables
                     getConstraints();
-                    
+
                     //TODO: Solve puzzle
                 }
                 reader.close();
