@@ -40,7 +40,7 @@ public class backtracking {
 
                     //Gets the constraints for the current board and adds them to affected variables
                     getConstraints();
-
+                    
                     //TODO: Solve puzzle
                 }
                 reader.close();
@@ -107,10 +107,11 @@ public class backtracking {
     }
 
     //Creates a new wall constraint based on a passed row and column index
+    //Does not add the given cell
     public static wallConstraint getWallConstraint(int row, int col){
         //Stores the list of constrained varriables
         ArrayList<Variable> vars = new ArrayList<Variable>();
-        
+
         //Checks if each cell around the wall is within the bounds of the array and if so adds it to the list
         if(row - 1 >= 0){vars.add(board[row-1][col]);}
         if(row + 1 < rowNum){vars.add(board[row+1][col]);}
@@ -122,8 +123,46 @@ public class backtracking {
     }
 
     //Creates a new light constraint based on a passed row and column index
+    //Adds variable to list for every cell above, below, left or right unstil a wall is hit
+    //Does not include the given cell
     public static lightConstraint getLightConstraint(int row, int col){
-        return null;
+        //Stores the list of constrained varriables
+        ArrayList<Variable> vars = new ArrayList<Variable>();
+
+        //Current row/column being inspected
+        int r;
+        int c;
+
+        //Up direction
+        r = row - 1;
+        while(r >= 0 && board[r][col].getLabel() > '4'){
+            vars.add(board[r][col]);
+            r--;
+        }
+
+        //Down direction
+        r = row + 1;
+        while(r < rowNum && board[r][col].getLabel() > '4'){
+            vars.add(board[r][col]);
+            r++;
+        }
+
+        //Left direction
+        c = col - 1;
+        while(c >= 0 && board[row][c].getLabel() > '4'){
+            vars.add(board[row][c]);
+            c--;
+        }
+
+        //Right direction
+        c = col + 1;
+        while(c < colNum && board[row][c].getLabel() > '4'){
+            vars.add(board[row][c]);
+            c++;
+        }
+
+        //Returns new light constraint containing the list of affected cells
+        return new lightConstraint(vars);
     }
 
     //Prints out current board state

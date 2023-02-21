@@ -10,9 +10,9 @@ public class wallConstraint extends Constraint{
     //Constructor
     //Takes in a list of vars involved in constraint and stores them
     //Also takes in the number of bulbs to check for and stores it
-    public wallConstraint(ArrayList<Variable> vars, int num){
+    public wallConstraint(ArrayList<Variable> vars, char num){
         super(vars);
-        this.num = num;
+        this.num = Character.getNumericValue(num);
     }
 
     //Checks if a wall gas the correct number of bulbs adjcent to it
