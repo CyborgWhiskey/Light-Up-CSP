@@ -41,7 +41,8 @@ public class backtracking {
                     //Gets the constraints for the current board and adds them to affected variables
                     getConstraints();
 
-                    //TODO: Solve puzzle
+                    System.out.println("\nSolving Puzzle:");
+                    solve();
                 }
                 reader.close();
 
@@ -50,6 +51,10 @@ public class backtracking {
 
         //If incorrect number of arguments given, prints error message
         else{System.out.println("ERROR: Not enough arguments given, expected 1 but received " + args.length + 1);}
+    }
+
+    public static void solve(){
+        //TODO: Solve puzzle
     }
 
     //Reads in each line of a file to get the rows and columns of the current puzzle
@@ -95,12 +100,12 @@ public class backtracking {
             for(int col = 0; col < colNum; col++){
                 //If the label is less than or equal to '4', then a WallConstraint is created
                 if(board[row][col].getLabel() <= '4'){
-                    board[row][col].addConstraint(getWallConstraint(row, col));
+                    getWallConstraint(row, col);
                 }
 
                 //Else a light consraint is created
                 else{
-                    board[row][col].addConstraint(getLightConstraint(row, col));
+                    getLightConstraint(row, col);
                 }
             }
         }
@@ -111,6 +116,7 @@ public class backtracking {
     public static wallConstraint getWallConstraint(int row, int col){
         //Stores the list of constrained varriables
         ArrayList<Variable> vars = new ArrayList<Variable>();
+        wallConstraint constraint;
 
         //Checks if each cell around the wall is within the bounds of the array and if so adds it to the list
         if(row - 1 >= 0){vars.add(board[row-1][col]);}
@@ -118,8 +124,12 @@ public class backtracking {
         if(col - 1 >= 0) {vars.add(board[row][col-1]);}
         if(col + 1 < colNum){vars.add(board[row][col+1]);}
 
-        //Retruns new wall constraint containing the list of affected cells and the number of the wall
-        return new wallConstraint(vars, board[row][col].getLabel());
+        //Creates new wall constraint containing the list of affected cells and the number of the wall amd adds it to every affected variable
+        constraint = new wallConstraint(vars, board[row][col].getLabel());
+        for(Variable var: vars){var.addConstraint(constraint);}
+
+        //Returns constraint
+        return constraint;
     }
 
     //Creates a new light constraint based on a passed row and column index
@@ -128,6 +138,7 @@ public class backtracking {
     public static lightConstraint getLightConstraint(int row, int col){
         //Stores the list of constrained varriables
         ArrayList<Variable> vars = new ArrayList<Variable>();
+        lightConstraint constraint;
 
         //Current row/column being inspected
         int r;
@@ -161,8 +172,12 @@ public class backtracking {
             c++;
         }
 
-        //Returns new light constraint containing the list of affected cells
-        return new lightConstraint(vars);
+        //Creates new light constraint containing the list of affected cells and assigns it to the affected cells
+        constraint = new lightConstraint(vars);
+        for(Variable var: vars){var.addConstraint(constraint);}
+
+        //Returns constraint
+        return constraint;
     }
 
     //Prints out current board state
