@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public abstract class Constraint {
     
     //List of variables affected by this constraint, provided on initilization
-    private ArrayList<Variable> vars;
+    protected ArrayList<Variable> vars;
 
     public Constraint(ArrayList<Variable> vars){
         this.vars = vars;
