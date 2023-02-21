@@ -24,9 +24,20 @@ public class backtracking {
                 input = new File(args[0]);
                 reader = new Scanner(input);
 
-                //Loops through every line of file
+                System.out.println("Found file " + args[0]);
+                System.out.println("Starting Processing");
+
+                //Main loop:
+                //Loops through every board in input file and runs the solution algorithim on it
                 while(reader.hasNextLine()){
-                   getBoard();
+                    //Gets board and prints it
+                    getBoard();
+                    System.out.println("Starting puzzle:");
+                    printBoard();
+
+                    //TODO: Get consraints and insert them into objects
+
+                    //TODO: Solve puzzle
                 }
                 reader.close();
 
@@ -37,6 +48,9 @@ public class backtracking {
         else{System.out.println("ERROR: Not enough arguments given, expected 1 but received " + args.length + 1);}
     }
 
+    //Reads in each line of a file to get the rows and columns of the current puzzle
+    //Then reads in each line and creates a Variable object for each cell and stores it in the board array
+    //Nothing is returned all changes are made to the array
     public static void getBoard(){
         StringTokenizer st;
         char[] vars;
@@ -64,10 +78,9 @@ public class backtracking {
 
         //Moves reader one line ahead to be at #End
         reader.nextLine();
-        
-        printBoard();
     }
 
+    //Prints out current board state
     public static void printBoard(){
         for(int row = 0; row < rowNum; row++){
             for(int col = 0; col < colNum; col++){

@@ -19,6 +19,8 @@ public class Variable{
     //Returns the label of this variable
     public char getLabel(){return label;}
 
+    public void setLabel(char l){label = l;}
+
     //Adds a constraint that affects this variable to its constraint list
     //Is given constraint type object and returns nothing
     public void addConstraint(Constraint cons){ constraints.add(cons);}
