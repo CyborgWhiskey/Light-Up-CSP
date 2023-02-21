@@ -1,8 +1,11 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+//Class to implement the backtracking algorithim
+//Takes input from the command line to run
 public class backtracking {
 
     //File input variables
@@ -35,7 +38,8 @@ public class backtracking {
                     System.out.println("Starting puzzle:");
                     printBoard();
 
-                    //TODO: Get consraints and insert them into objects
+                    //Gets the constraints for the current board and adds them to affected variables
+                    getConstraints();
 
                     //TODO: Solve puzzle
                 }
@@ -78,6 +82,48 @@ public class backtracking {
 
         //Moves reader one line ahead to be at #End
         reader.nextLine();
+    }
+
+    //Finds and creates constraints for the board
+    //Adds the constraints to the affected cells
+    //Currently Uses:
+    //  --> WallConstraints: Constraint for if a wall has the correct number of bulbs surrounding it
+    //  --> LightConstraints: Constraint that there can only be one bulb per row/column, unless there is a wall between them
+    public static void getConstraints(){
+        //Loops through each cell of the board and finds constraints for that cell
+        for(int row = 0; row < rowNum; row++){
+            for(int col = 0; col < colNum; col++){
+                //If the label is less than or equal to '4', then a WallConstraint is created
+                if(board[row][col].getLabel() <= '4'){
+                    board[row][col].addConstraint(getWallConstraint(row, col));
+                }
+
+                //Else a light consraint is created
+                else{
+                    board[row][col].addConstraint(getLightConstraint(row, col));
+                }
+            }
+        }
+    }
+
+    //Creates a new wall constraint based on a passed row and column index
+    public static wallConstraint getWallConstraint(int row, int col){
+        //Stores the list of constrained varriables
+        ArrayList<Variable> vars = new ArrayList<Variable>();
+        
+        //Checks if each cell around the wall is within the bounds of the array and if so adds it to the list
+        if(row - 1 >= 0){vars.add(board[row-1][col]);}
+        if(row + 1 < rowNum){vars.add(board[row+1][col]);}
+        if(col - 1 >= 0) {vars.add(board[row][col-1]);}
+        if(col + 1 < colNum){vars.add(board[row][col+1]);}
+
+        //Retruns new wall constraint containing the list of affected cells and the number of the wall
+        return new wallConstraint(vars, board[row][col].getLabel());
+    }
+
+    //Creates a new light constraint based on a passed row and column index
+    public static lightConstraint getLightConstraint(int row, int col){
+        return null;
     }
 
     //Prints out current board state
