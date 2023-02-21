@@ -18,6 +18,9 @@ public class backtracking {
     public static int rowNum;
     public static int colNum;
 
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //MAIN METHOD
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
     public static void main(String args[]){
 
         //Checks for correct number of arguments
@@ -53,9 +56,16 @@ public class backtracking {
         else{System.out.println("ERROR: Not enough arguments given, expected 1 but received " + args.length + 1);}
     }
 
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //SOLVING METHODS
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
     public static void solve(){
         //TODO: Solve puzzle
     }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //BOARD CREATION METHODS
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //Reads in each line of a file to get the rows and columns of the current puzzle
     //Then reads in each line and creates a Variable object for each cell and stores it in the board array
@@ -88,6 +98,10 @@ public class backtracking {
         //Moves reader one line ahead to be at #End
         reader.nextLine();
     }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // CONSTRAINT CREATION METHODS
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //Finds and creates constraints for the board
     //Adds the constraints to the affected cells
