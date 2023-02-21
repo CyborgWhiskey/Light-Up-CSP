@@ -10,7 +10,7 @@ public class Variable{
     private char label;
     private ArrayList<Constraint> constraints;
 
-    //Constructer takes a char label as input
+    //Constructor takes a char label as input
     public Variable(char label){
         this.label = label;
         constraints = new ArrayList<Constraint>(); 
@@ -19,6 +19,8 @@ public class Variable{
     //Returns the label of this variable
     public char getLabel(){return label;}
 
+    public void setLabel(char l){label = l;}
+
     //Adds a constraint that affects this variable to its constraint list
     //Is given constraint type object and returns nothing
     public void addConstraint(Constraint cons){ constraints.add(cons);}
@@ -26,7 +28,22 @@ public class Variable{
     //Checks list of constraints and returns true if all variables constraints are met
     //Should be called after every change to the CSP
     public boolean consistent(){
-        //TODO: Implement this, just calls all satisfied methods on each element of the list
-        return true;
+        //Stores if every constraint is true
+        boolean pass = true;
+
+        //If the list exists, every constraint is checked for if it is satisfied
+        //If the entire list is enumerated, then pass is left at true
+        //If one constraint fails, then pass is set to false and the loop breaks
+        if(constraints != null){
+            for(Constraint con: constraints){
+                if(!con.satisfied()){
+                    pass = false;
+                    break;
+                }
+            }
+        }
+
+        //Returns if the test is passed or not
+        return pass;
     }
 }
