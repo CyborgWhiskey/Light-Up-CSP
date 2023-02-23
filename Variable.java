@@ -9,11 +9,14 @@ public class Variable{
 
     private char label;
     private ArrayList<Constraint> constraints;
+    private ArrayList<Constraint> myConstraints;
+    private int numConstraints;
 
     //Constructor takes a char label as input
     public Variable(char label){
         this.label = label;
-        constraints = new ArrayList<Constraint>(); 
+        constraints = new ArrayList<Constraint>();
+        numConstraints = 0;
     }
 
     //Returns the label of this variable
@@ -23,7 +26,15 @@ public class Variable{
 
     //Adds a constraint that affects this variable to its constraint list
     //Is given constraint type object and returns nothing
-    public void addConstraint(Constraint cons){ constraints.add(cons);}
+    public void addConstraint(Constraint cons){
+        constraints.add(cons);
+        numConstraints = constraints.size();
+    }
+
+    public void removeConstraint(Constraint cons){
+        constraints.remove(cons);
+        numConstraints = constraints.size();
+    }
 
     //Checks list of constraints and returns true if all variables constraints are met
     //Should be called after every change to the CSP
@@ -37,6 +48,26 @@ public class Variable{
         if(constraints != null){
             for(Constraint con: constraints){
                 if(!con.satisfied()){
+                    pass = false;
+                    break;
+                }
+            }
+        }
+
+        //Returns if the test is passed or not
+        return pass;
+    }
+
+    public boolean partialConsistent(){
+        //Stores if every constraint is true
+        boolean pass = true;
+
+        //If the list exists, every constraint is checked for if it is satisfied
+        //If the entire list is enumerated, then pass is left at true
+        //If one constraint fails, then pass is set to false and the loop breaks
+        if(constraints != null){
+            for(Constraint con: constraints){
+                if(!con.partialSatisfied()){
                     pass = false;
                     break;
                 }

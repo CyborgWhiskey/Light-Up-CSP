@@ -18,6 +18,9 @@ public class backtracking {
     public static int rowNum;
     public static int colNum;
 
+    //Node counter variable
+    public static int nodeCount;
+
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //MAIN METHOD
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -43,9 +46,20 @@ public class backtracking {
 
                     //Gets the constraints for the current board and adds them to affected variables
                     getConstraints();
-
                     System.out.println("\nSolving Puzzle:");
-                    solve();
+                    if(solve()){
+                        System.out.print("\nTotal number of nodes: ");
+                        System.out.println(nodeCount);
+                        nodeCount = 0;
+                        System.out.println("\nPuzzle Solved! Here's the solution:");
+                        printBoard();
+                    }
+                    else{
+                        System.out.println(nodeCount);
+                        nodeCount = 0;
+                        System.out.println("\nPuzzle couldn't be solved.");
+                        printBoard();
+                    }
                 }
                 reader.close();
 
@@ -59,10 +73,48 @@ public class backtracking {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //SOLVING METHODS
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
-    public static void solve(){
+    public static boolean solve() {
         //TODO: Solve puzzle
+        //Returns the board if it's a complete assignment - base case for recursion
+        boolean consistent = false;
+        if(nodeCount > 0) {
+            consistent = true;
+            for (int r = 0; r < rowNum; r++) {
+                for (int c = 0; c < colNum; c++) {
+                    if (!board[r][c].consistent()) {
+                        consistent = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if(consistent){ //Conditional return if consistency is true for each variable on the board
+            return true;
+        }
+        else {
+            for (int r = 0; r < rowNum; r++) {
+                for (int c = 0; c < colNum; c++) {
+                    if (board[r][c].getLabel() == '_'){
+                        board[r][c].setLabel('b');
+                        Constraint tempLConst;
+                        if(board[r][c].partialConsistent()){
+                            tempLConst = getLightConstraint(r, c);
+                            nodeCount++;
+                            consistent = solve();
+                            if(!consistent){
+                                board[r][c].removeConstraint(tempLConst);
+                                board[r][c].setLabel('_');
+                            }
+                        }
+                        else {
+                            board[r][c].setLabel('_');
+                        }
+                    }
+                }
+            }
+        }
+        return consistent;
     }
-
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //BOARD CREATION METHODS
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,13 +166,13 @@ public class backtracking {
             for(int col = 0; col < colNum; col++){
                 //If the label is less than or equal to '4', then a WallConstraint is created
                 if(board[row][col].getLabel() <= '4'){
-                    getWallConstraint(row, col);
+                    //getWallConstraint(row, col);
                 }
 
-                //Else a light consraint is created
-                else{
-                    getLightConstraint(row, col);
-                }
+                //Else a light constraint is created
+                //else{
+                    //getLightConstraint(row, col);
+                //}
             }
         }
     }

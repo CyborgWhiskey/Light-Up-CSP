@@ -14,4 +14,6 @@ public abstract class Constraint {
 
     //Returns true if constraint is met. Must implement for each constraint
     public abstract boolean satisfied();
+    //Returns true if some constraints are met. Different implement for each type of constraint
+    public abstract boolean partialSatisfied();
 }
