@@ -75,45 +75,74 @@ public class backtracking {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     public static boolean solve() {
         //TODO: Solve puzzle
+        boolean solution = false;
         //Returns the board if it's a complete assignment - base case for recursion
-        boolean consistent = false;
-        if(nodeCount > 0) {
-            consistent = true;
-            for (int r = 0; r < rowNum; r++) {
-                for (int c = 0; c < colNum; c++) {
-                    if (!board[r][c].consistent()) {
-                        consistent = false;
-                        break;
-                    }
-                }
-            }
-        }
-        if(consistent){ //Conditional return if consistency is true for each variable on the board
+        if(checker()){
             return true;
         }
-        else {
-            for (int r = 0; r < rowNum; r++) {
+        else{ //Recursive case -> tries every combination of bulb cells before returning a solution or failure
+            for(int r = 0; r < rowNum; r++) {
                 for (int c = 0; c < colNum; c++) {
-                    if (board[r][c].getLabel() == '_'){
+                    if(board[r][c].getLabel() == '_'){
                         board[r][c].setLabel('b');
-                        Constraint tempLConst;
                         if(board[r][c].partialConsistent()){
-                            tempLConst = getLightConstraint(r, c);
+                            Constraint temp = getLightConstraint(r, c);
+                            board[r][c].addConstraint(temp);
                             nodeCount++;
-                            consistent = solve();
-                            if(!consistent){
-                                board[r][c].removeConstraint(tempLConst);
+                            solution = solve();
+                            if(!solution){
                                 board[r][c].setLabel('_');
+                                board[r][c].removeConstraint(temp);
+                            }
+                            else{
+                                break;
                             }
                         }
-                        else {
+                        else{
                             board[r][c].setLabel('_');
                         }
                     }
                 }
             }
         }
-        return consistent;
+        return solution;
+    }
+
+    public static boolean checker(){
+        ArrayList<Variable> bulbs = new ArrayList<>();
+        ArrayList<Variable> lit = new ArrayList<>();
+        ArrayList<Variable> walls = new ArrayList<>();
+
+        for(int r = 0; r < rowNum; r++){
+            for(int c = 0; c < colNum; c++){
+                if(board[r][c].getLabel() == 'b'){
+                    bulbs.add(board[r][c]);
+                }
+                if(board[r][c].getLabel() == '_'){
+                    lit.add(board[r][c]);
+                }
+                if(board[r][c].getLabel() <= '4'){
+                    walls.add(board[r][c]);
+                }
+            }
+        }
+
+        for(Variable var: bulbs){
+            if(!var.consistent()){
+                return false;
+            }
+        }
+        for(Variable var: lit){
+            if(var.getNumConstraints() == 0){
+                return false;
+            }
+        }
+        for(Variable var: walls){
+            if(!var.consistent()){
+                return false;
+            }
+        }
+        return true;
     }
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //BOARD CREATION METHODS
@@ -192,6 +221,7 @@ public class backtracking {
 
         //Creates new wall constraint containing the list of affected cells and the number of the wall amd adds it to every affected variable
         constraint = new wallConstraint(vars, board[row][col].getLabel());
+        board[row][col].addConstraint(constraint);
         for(Variable var: vars){var.addConstraint(constraint);}
 
         //Returns constraint

@@ -24,6 +24,8 @@ public class Variable{
 
     public void setLabel(char l){label = l;}
 
+    public int getNumConstraints(){return numConstraints;}
+
     //Adds a constraint that affects this variable to its constraint list
     //Is given constraint type object and returns nothing
     public void addConstraint(Constraint cons){
