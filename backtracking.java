@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Stack;
@@ -95,36 +96,27 @@ public class backtracking {
         nodeCount = 0;
         boolean solution = false;
         Constraint temp = null;
-        ArrayList<Variable> updatedAvailable = new ArrayList<>(availableVars);
+        ArrayList<Variable> updatedAvailable = updateAssignableVars();
         //Returns the board if it's a complete assignment - base case for recursion
         if(checker()){
             return true;
         }
         else{ //Recursive case
             for(Variable var: availableVars){
-                temp = null;
-                for(int r = 0; r < rowNum; r++){
-                    for(int c = 0; c < colNum; c++){
-                        if(board[r][c] == var){
-                            board[r][c].setLabel('_');
-                            temp = getLightConstraint(r,c);
-                            break;
-                        }
-                    }
-                    if(temp != null){
-                        break;
-                    }
-                }
+                var.setLabel('b');
+                temp = getLightConstraint(var.getRow(), var.getCol());
                 if(var.partialConsistent()){
+                    updatedAvailable = updateAssignableVars();
                     currAssign.push(var);
                     updatedAvailable.remove(var);
                     solution = solve(currAssign,updatedAvailable,availableWallVars);
                     if(solution){
                         return true;
                     }
-                    currAssign.pop().setLabel('b');
-                    removeLightConstraint(temp);
+                    currAssign.pop();
                 }
+                var.setLabel('_');
+                removeLightConstraint(temp);
             }
         }
         return solution;
@@ -177,17 +169,19 @@ public class backtracking {
         return true;
     }
 
-    public static void updateAssignableVars(){
-        assignable.clear();
+    public static ArrayList<Variable> updateAssignableVars(){
+        ArrayList<Variable> temp = new ArrayList<>(assignable);
+        temp.clear();
         for(int r = 0; r < rowNum; r++){
             for(int c = 0; c < colNum; c++) {
                 if(board[r][c].getLabel() == '_'){
-                    assignable.add(board[r][c]);
+                    temp.add(board[r][c]);
                 }
             }
         }
-        assignable.removeIf(Variable::getZeroStatus);
-        assignable.removeIf(Variable::getLitStatus);
+        temp.removeIf(Variable::getZeroStatus);
+        temp.removeIf(Variable::getLitStatus);
+        return temp;
     }
 
     public static void getWallVariables(){
@@ -228,7 +222,7 @@ public class backtracking {
 
             //Loops through each column of current row to get values and adds them to the board
             for(int c = 0; c < colNum; c++){
-                board[r][c] = new Variable(vars[c], false, false, false);
+                board[r][c] = new Variable(vars[c], false, false, false, r, c);
             }
         }
 

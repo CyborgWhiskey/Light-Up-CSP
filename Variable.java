@@ -12,6 +12,10 @@ public class Variable{
     private ArrayList<Constraint> myConstraints;
     private int numConstraints;
 
+    private int row;
+
+    private int col;
+
     private boolean nextToZero;
 
     private boolean nextToWall;
@@ -19,11 +23,13 @@ public class Variable{
     private boolean lit;
 
     //Constructor takes a char label as input
-    public Variable(char label, boolean zeroWall, boolean wall, boolean illuminated){
+    public Variable(char label, boolean zeroWall, boolean wall, boolean illuminated, int r, int c){
         this.label = label;
         this.nextToZero = zeroWall;
         this.nextToWall = wall;
         this.lit = illuminated;
+        this.row = r;
+        this.col = c;
         constraints = new ArrayList<Constraint>();
         numConstraints = 0;
     }
@@ -46,6 +52,10 @@ public class Variable{
     public void setLitStatus(boolean illuminated){lit = illuminated;}
 
     public int getNumConstraints(){return numConstraints;}
+
+    public int getRow(){return row;}
+
+    public int getCol(){return col;}
 
     //Adds a constraint that affects this variable to its constraint list
     //Is given constraint type object and returns nothing
