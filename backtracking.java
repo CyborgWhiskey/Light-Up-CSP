@@ -17,14 +17,14 @@ public class backtracking {
     //Board state as well as the size variables for the length/width of the board
     public static Variable board[][];
 
-    public static Stack<Variable> currAssign;
-
+    public static Stack<Variable> currAssign; //vvv these are the new arraylists and the assignment stack
+    //current assignment stack
     public static ArrayList<Variable> wallVars;
-
+    //all our '_' variables next to walls
     public static ArrayList<Variable> assignable;
-
-    public static ArrayList<Constraint> walls;
-
+    //the list of all the unassigned "assignable" '_' variables
+    public static ArrayList<Constraint> walls; //^^^
+    //list to track wall constraints
     public static int rowNum;
     public static int colNum;
 
@@ -101,9 +101,9 @@ public class backtracking {
         }
         else{ //Recursive case
             Constraint light = null;
-            temp = new ArrayList<>(availableWallVars);
+            temp = new ArrayList<>(availableWallVars); //messy, but otherwise I'd get runtime errors like concurrent modifications
             for(Variable wallVar: temp){
-                if(wallChecks()){
+                if(wallChecks()){ //if we aren't through the unassigned wall adjacent variables but the walls' constraints are all met, we break
                     break;
                 }
                 wallVar.setLabel('b');
@@ -119,16 +119,16 @@ public class backtracking {
                     currAssign.push(wallVar);
                     availableWallVars.remove(wallVar);
                     solution = solve(currAssign, availableVars, availableWallVars);
-                    if(!solution){
+                    if(!solution){ //if solution is invalid, we pop the most recent additon to currassign and re-add it to the list of wall variables
                         currAssign.pop();
                         availableWallVars.add(wallVar);
                         wallVar.setLabel('_');
-                        wallVar.removeConstraint(light);
+                        wallVar.removeConstraint(light); //removes the light constraints from the bulb placed
                     }
                 }
             }
             temp = new ArrayList<>(availableVars);
-            for(Variable var: temp){
+            for(Variable var: temp){ //this is where we assign the rest of the cells
                 Variable assign = var;
                 var.setLabel('b');
                 for(int r = 0; r < rowNum; r++){
@@ -366,6 +366,9 @@ public class backtracking {
         return constraint;
     }
 
+    //This is going to be needed if we want to check using constraints, before light constraints just hung around after we unassigned things
+    //Removes the reference of the constraint directly from all affected variables, and then sets the "lit" flag appropriately
+    //based on whether at least one light constraint still applies to the cell
     public static void removeLightConstraint(Constraint oldLight){
         for(Variable var: oldLight.vars){
             var.removeConstraint(oldLight);
