@@ -203,9 +203,17 @@ public class backtracking {
         StringTokenizer st;
         char[] vars;
 
-        //Skips a line to get to number of rows/columns
+        //Gets the first line and converts it to a char array
         data = reader.nextLine();
-        data = reader.nextLine();
+        vars = data.toCharArray();
+
+        //Checks if the first char is a #, if so this line is a comment and is ignored
+        while(vars[0] == '#'){
+            data = reader.nextLine();
+            vars = data.toCharArray();
+        }
+
+        //First line of puzzle is the dimensions, tokenizes data string to get the 2 values
         st = new StringTokenizer(data);
 
         //Gets the row and column number from input and instantiates board array
