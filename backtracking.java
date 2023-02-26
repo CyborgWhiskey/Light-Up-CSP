@@ -99,24 +99,18 @@ public class backtracking {
         Constraint temp = null;
         Stack<Variable> updatedAvailable;
         //Returns the board if it's a complete assignment - base case for recursion
-        if(availableVars.size() == 0){
-            //printBoard();
-            //System.out.println();
-        }
         if(checker()){
             return true;
         }
         else{ //Recursive case
             while(!availableVars.isEmpty()){
-                nodeCount++;
                 Variable var = availableVars.pop();
                 var.setLabel('b');
                 temp = getLightConstraint(var.getRow(), var.getCol());
                 if(var.partialConsistent()){
-                    //printBoard();
-                    updatedAvailable = (Stack<Variable>) availableVars.clone(); //<--- if uncommented, gives wrong solution that ignores wall constraints, if left out gives wrong solution that follows wall constraints
+                    updatedAvailable = (Stack<Variable>) availableVars.clone();
                     currAssign.push(var);
-                    //updatedAvailable.remove(var);
+                    nodeCount++;
                     solution = solve(currAssign,updatedAvailable,availableWallVars);
                     if(solution){
                         return true;
@@ -181,8 +175,10 @@ public class backtracking {
                 }
             }
         }
-        temp.removeIf(Variable::getZeroStatus);
-        temp.removeIf(Variable::getLitStatus);
+
+        //FORWARD CHECKING LMAO
+        //temp.removeIf(Variable::getZeroStatus);
+        //temp.removeIf(Variable::getLitStatus);
         return temp;
     }
 
