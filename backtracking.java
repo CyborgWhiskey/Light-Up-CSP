@@ -32,20 +32,22 @@ public class backtracking {
     //Node counter variable
     public static int nodeCount;
 
+    //Stores the current selected heuristic
+    public static String heuristic;
+
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //MAIN METHOD
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     public static void main(String args[]){
 
+        //Instantiates Lists
         wallVars = new ArrayList<>();
-
         currAssign = new Stack<>();
-
         assignable = new Stack<>();
-
         walls = new ArrayList<>();
+
         //Checks for correct number of arguments
-        if(args.length == 1){
+        if(args.length > 0){
             try{
                 //Reads in file name given
                 input = new File(args[0]);
@@ -53,6 +55,12 @@ public class backtracking {
 
                 System.out.println("Found file " + args[0]);
                 System.out.println("Starting Processing");
+
+                //If heuristic is passed in, the herustic variable will be set to it
+                heuristic = "";
+                if(args.length == 2){
+                    heuristic = args[1];
+                }
 
                 //Main loop:
                 //Loops through every board in input file and runs the solution algorithim on it
@@ -66,20 +74,23 @@ public class backtracking {
                     getConstraints();
                     assignable = updateAssignableVars();
                     getWallVariables();
+
+                    //Attempts to solve puzzle
                     System.out.println("\nSolving Puzzle:");
-                    if(solve(currAssign, assignable, wallVars)){
+                    if(solve(currAssign, assignable, wallVars)){     //Case 1: Solution found
                         System.out.print("\nTotal number of nodes: ");
                         System.out.println(nodeCount);
-                        nodeCount = 0;
                         System.out.println("\nPuzzle Solved! Here's the solution:");
                         printBoard();
                     }
-                    else{
+                    else{                                            //Case 2: No solution found
                         System.out.println(nodeCount);
-                        nodeCount = 0;
                         System.out.println("\nPuzzle couldn't be solved.");
                         printBoard();
                     }
+
+                    //Resets node count to 0
+                    nodeCount = 0;
                 }
                 reader.close();
 
@@ -87,7 +98,7 @@ public class backtracking {
         }
 
         //If incorrect number of arguments given, prints error message
-        else{System.out.println("ERROR: Not enough arguments given, expected 1 but received " + args.length + 1);}
+        else{System.out.println("ERROR: Not enough arguments given, expected at least 1 but received " + args.length);}
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -98,6 +109,7 @@ public class backtracking {
         boolean solution = false;
         Constraint temp = null;
         Stack<Variable> updatedAvailable;
+
         //Returns the board if it's a complete assignment - base case for recursion
         if(checker()){
             return true;
@@ -168,10 +180,24 @@ public class backtracking {
 
     public static Stack<Variable> updateAssignableVars(){
         Stack<Variable> temp = new Stack<>();
-        for(int r = 0; r < rowNum; r++){
-            for(int c = 0; c < colNum; c++) {
-                if(board[r][c].getLabel() == '_'){
-                    temp.push(board[r][c]);
+
+        //Heuristic 1: Most Constrained
+        if(heuristic.equals("H1")){}
+
+        //Heuristic 2: Most Constraining
+        else if(heuristic.equals("H2")){}
+
+        //Heuristic 3: Hybrid
+        else if(heuristic.equals("H3")){}
+
+        //Default case: no heuristic is used
+        //Triggers if no heruistic was selected or if the entered heuristic does not exist
+        else{
+            for(int r = 0; r < rowNum; r++){
+                for(int c = 0; c < colNum; c++) {
+                    if(board[r][c].getLabel() == '_'){
+                        temp.push(board[r][c]);
+                    }
                 }
             }
         }
