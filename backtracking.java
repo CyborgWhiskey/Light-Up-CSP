@@ -21,7 +21,7 @@ public class backtracking {
 
     public static ArrayList<Variable> wallVars;
 
-    public static ArrayList<Variable> validVars;
+    public static ArrayList<Variable> assignable;
 
     public static ArrayList<Constraint> walls;
 
@@ -40,7 +40,7 @@ public class backtracking {
 
         currAssign = new Stack<>();
 
-        validVars = new ArrayList<>();
+        assignable = new ArrayList<>();
 
         walls = new ArrayList<>();
         //Checks for correct number of arguments
@@ -63,17 +63,17 @@ public class backtracking {
 
                     //Gets the constraints for the current board and adds them to affected variables
                     getConstraints();
+                    updateAssignableVars();
+                    getWallVariables();
                     System.out.println("\nSolving Puzzle:");
-                    if(solve()){
+                    if(solve(currAssign, assignable, wallVars)){
                         System.out.print("\nTotal number of nodes: ");
                         System.out.println(nodeCount);
-                        nodeCount = 0;
                         System.out.println("\nPuzzle Solved! Here's the solution:");
                         printBoard();
                     }
                     else{
                         System.out.println(nodeCount);
-                        nodeCount = 0;
                         System.out.println("\nPuzzle couldn't be solved.");
                         printBoard();
                     }
@@ -90,39 +90,79 @@ public class backtracking {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //SOLVING METHODS
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
-    public static boolean solve() {
+    public static boolean solve(Stack<Variable> currAssign, ArrayList<Variable> availableVars, ArrayList<Variable> availableWallVars) {
         //TODO: Solve puzzle
+        nodeCount = 0;
         boolean solution = false;
+        ArrayList<Variable> temp;
         //Returns the board if it's a complete assignment - base case for recursion
         if(checker()){
             return true;
         }
-        else{ //Recursive case -> tries every combination of bulb cells before returning a solution or failure
-            for(int r = 0; r < rowNum; r++) {
-                for (int c = 0; c < colNum; c++) {
-                    if(board[r][c].getLabel() == '_'){
-                        board[r][c].setLabel('b');
-                        if(board[r][c].partialConsistent()){
-                            Constraint temp = getLightConstraint(r, c);
-                            board[r][c].addConstraint(temp);
-                            nodeCount++;
-                            solution = solve();
-                            if(!solution){
-                                board[r][c].setLabel('_');
-                                board[r][c].removeConstraint(temp);
-                            }
-                            else{
-                                break;
-                            }
+        else{ //Recursive case
+            Constraint light = null;
+            temp = new ArrayList<>(availableWallVars);
+            for(Variable wallVar: temp){
+                if(wallChecks()){
+                    break;
+                }
+                wallVar.setLabel('b');
+                for(int r = 0; r < rowNum; r++){
+                    for(int c = 0; c < colNum; c++){
+                        if(board[r][c] == wallVar){
+                            light = getLightConstraint(r,c);
+                            break;
                         }
-                        else{
-                            board[r][c].setLabel('_');
+                    }
+                }
+                if(wallVar.partialConsistent()){ //Checks for any other wall violations and light constraint violations
+                    currAssign.push(wallVar);
+                    availableWallVars.remove(wallVar);
+                    solution = solve(currAssign, availableVars, availableWallVars);
+                    if(!solution){
+                        currAssign.pop();
+                        availableWallVars.add(wallVar);
+                        wallVar.setLabel('_');
+                        wallVar.removeConstraint(light);
+                    }
+                }
+            }
+            temp = new ArrayList<>(availableVars);
+            for(Variable var: temp){
+                Variable assign = var;
+                var.setLabel('b');
+                for(int r = 0; r < rowNum; r++){
+                    for(int c = 0; c < colNum; c++){
+                        if(board[r][c] == var){
+                            light = getLightConstraint(r,c);
+                            break;
                         }
+                    }
+                }
+                if(var.consistent()){
+                    currAssign.push(var);
+                    availableVars.remove(var);
+                    solution = solve(currAssign,availableVars,availableWallVars);
+                    if(!solution){
+                        currAssign.pop();
+                        availableVars.add(assign);
+                        assign.setLabel('_');
+                        assign.removeConstraint(light);
                     }
                 }
             }
         }
         return solution;
+    }
+
+    public static boolean wallChecks(){
+        boolean valid = true;
+        for(Constraint constr: walls){
+            if(!constr.satisfied()){
+                valid = false;
+            }
+        }
+        return valid;
     }
 
     public static boolean checker(){
@@ -138,11 +178,8 @@ public class backtracking {
                 if(board[r][c].getLabel() == '_'){
                     lit.add(board[r][c]);
                 }
-                if(board[r][c].getLabel() <= '4' && board[r][c].getLabel() > '0'){
+                if(board[r][c].getLabel() <= '4'){
                     walls.add(board[r][c]);
-                }
-                if(board[r][c].getLabel() == '0'){
-
                 }
             }
         }
@@ -153,7 +190,7 @@ public class backtracking {
             }
         }
         for(Variable var: lit){
-            if(var.getNumConstraints() == 0){
+            if(!var.getLitStatus()){
                 return false;
             }
         }
@@ -166,21 +203,24 @@ public class backtracking {
     }
 
     public static void updateAssignableVars(){
-        validVars.removeIf(Variable::getZeroStatus);
-        validVars.removeIf(Variable::getLitStatus);
+        assignable.clear();
         for(int r = 0; r < rowNum; r++){
             for(int c = 0; c < colNum; c++) {
                 if(board[r][c].getLabel() == '_'){
-                    validVars.add(board[r][c]);
+                    assignable.add(board[r][c]);
                 }
             }
         }
+        assignable.removeIf(Variable::getZeroStatus);
+        assignable.removeIf(Variable::getLitStatus);
     }
 
     public static void getWallVariables(){
-        for(Variable var: validVars){
+        ArrayList<Variable> temp = new ArrayList<>(assignable);
+        for(Variable var: temp){
             if(var.getWallStatus()){
                 wallVars.add(var);
+                assignable.remove(var);
             }
         }
     }
@@ -213,9 +253,7 @@ public class backtracking {
 
             //Loops through each column of current row to get values and adds them to the board
             for(int c = 0; c < colNum; c++){
-                if(vars[c] > '4')
                 board[r][c] = new Variable(vars[c], false, false, false);
-
             }
         }
 
