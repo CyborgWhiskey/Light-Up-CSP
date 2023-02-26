@@ -64,7 +64,7 @@ public class backtracking {
 
                     //Gets the constraints for the current board and adds them to affected variables
                     getConstraints();
-                    updateAssignableVars();
+                    assignable = updateAssignableVars();
                     getWallVariables();
                     System.out.println("\nSolving Puzzle:");
                     if(solve(currAssign, assignable, wallVars)){
@@ -106,7 +106,7 @@ public class backtracking {
                 var.setLabel('b');
                 temp = getLightConstraint(var.getRow(), var.getCol());
                 if(var.partialConsistent()){
-                    updatedAvailable = updateAssignableVars();
+                    //updatedAvailable = updateAssignableVars(); <--- if uncommented, gives wrong solution that ignores wall constraints, if left out gives wrong solution that follows wall constraints
                     currAssign.push(var);
                     updatedAvailable.remove(var);
                     solution = solve(currAssign,updatedAvailable,availableWallVars);
