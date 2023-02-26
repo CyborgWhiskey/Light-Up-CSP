@@ -22,7 +22,7 @@ public class backtracking {
     //current assignment stack
     public static ArrayList<Variable> wallVars;
     //all our '_' variables next to walls
-    public static ArrayList<Variable> assignable;
+    public static Stack<Variable> assignable;
     //the list of all the unassigned "assignable" '_' variables
     public static ArrayList<Constraint> walls; //^^^
     //list to track wall constraints
@@ -41,7 +41,7 @@ public class backtracking {
 
         currAssign = new Stack<>();
 
-        assignable = new ArrayList<>();
+        assignable = new Stack<>();
 
         walls = new ArrayList<>();
         //Checks for correct number of arguments
@@ -70,11 +70,13 @@ public class backtracking {
                     if(solve(currAssign, assignable, wallVars)){
                         System.out.print("\nTotal number of nodes: ");
                         System.out.println(nodeCount);
+                        nodeCount = 0;
                         System.out.println("\nPuzzle Solved! Here's the solution:");
                         printBoard();
                     }
                     else{
                         System.out.println(nodeCount);
+                        nodeCount = 0;
                         System.out.println("\nPuzzle couldn't be solved.");
                         printBoard();
                     }
@@ -91,29 +93,36 @@ public class backtracking {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //SOLVING METHODS
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
-    public static boolean solve(Stack<Variable> currAssign, ArrayList<Variable> availableVars, ArrayList<Variable> availableWallVars) {
+    public static boolean solve(Stack<Variable> currAssign, Stack<Variable> availableVars, ArrayList<Variable> availableWallVars) {
         //TODO: Solve puzzle
-        nodeCount = 0;
         boolean solution = false;
         Constraint temp = null;
-        ArrayList<Variable> updatedAvailable = updateAssignableVars();
+        Stack<Variable> updatedAvailable;
         //Returns the board if it's a complete assignment - base case for recursion
+        if(availableVars.size() == 0){
+            //printBoard();
+            //System.out.println();
+        }
         if(checker()){
             return true;
         }
         else{ //Recursive case
-            for(Variable var: availableVars){
+            while(!availableVars.isEmpty()){
+                nodeCount++;
+                Variable var = availableVars.pop();
                 var.setLabel('b');
                 temp = getLightConstraint(var.getRow(), var.getCol());
                 if(var.partialConsistent()){
-                    //updatedAvailable = updateAssignableVars(); <--- if uncommented, gives wrong solution that ignores wall constraints, if left out gives wrong solution that follows wall constraints
+                    //printBoard();
+                    updatedAvailable = (Stack<Variable>) availableVars.clone(); //<--- if uncommented, gives wrong solution that ignores wall constraints, if left out gives wrong solution that follows wall constraints
                     currAssign.push(var);
-                    updatedAvailable.remove(var);
+                    //updatedAvailable.remove(var);
                     solution = solve(currAssign,updatedAvailable,availableWallVars);
                     if(solution){
                         return true;
                     }
                     currAssign.pop();
+
                 }
                 var.setLabel('_');
                 removeLightConstraint(temp);
@@ -135,7 +144,6 @@ public class backtracking {
     public static boolean checker(){
         ArrayList<Variable> bulbs = new ArrayList<>();
         ArrayList<Variable> lit = new ArrayList<>();
-        ArrayList<Variable> walls = new ArrayList<>();
 
         for(int r = 0; r < rowNum; r++){
             for(int c = 0; c < colNum; c++){
@@ -144,9 +152,6 @@ public class backtracking {
                 }
                 if(board[r][c].getLabel() == '_'){
                     lit.add(board[r][c]);
-                }
-                if(board[r][c].getLabel() <= '4'){
-                    walls.add(board[r][c]);
                 }
             }
         }
@@ -161,21 +166,18 @@ public class backtracking {
                 return false;
             }
         }
-        for(Variable var: walls){
-            if(!var.consistent()){
-                return false;
-            }
+        if(!wallChecks()){
+            return false;
         }
         return true;
     }
 
-    public static ArrayList<Variable> updateAssignableVars(){
-        ArrayList<Variable> temp = new ArrayList<>(assignable);
-        temp.clear();
+    public static Stack<Variable> updateAssignableVars(){
+        Stack<Variable> temp = new Stack<>();
         for(int r = 0; r < rowNum; r++){
             for(int c = 0; c < colNum; c++) {
                 if(board[r][c].getLabel() == '_'){
-                    temp.add(board[r][c]);
+                    temp.push(board[r][c]);
                 }
             }
         }
@@ -259,7 +261,7 @@ public class backtracking {
     //Does not add the given cell
     public static wallConstraint getWallConstraint(int row, int col){
         //Stores the list of constrained variables
-        ArrayList<Variable> vars = new ArrayList<Variable>();
+        ArrayList<Variable> vars = new ArrayList<>();
         wallConstraint constraint;
 
         //Checks if each cell around the wall is within the bounds of the array and if so adds it to the list
@@ -268,7 +270,7 @@ public class backtracking {
         if(col - 1 >= 0) {vars.add(board[row][col-1]);}
         if(col + 1 < colNum){vars.add(board[row][col+1]);}
 
-        //Creates new wall constraint containing the list of affected cells and the number of the wall amd adds it to every affected variable
+        //Creates new wall constraint containing the list of affected cells and the number of the wall and adds it to every affected variable
         constraint = new wallConstraint(vars, board[row][col].getLabel());
         for(Variable var: vars){
             var.addConstraint(constraint);
@@ -341,9 +343,11 @@ public class backtracking {
     public static void removeLightConstraint(Constraint oldLight){
         for(Variable var: oldLight.vars){
             var.removeConstraint(oldLight);
-            if(var.getNumConstraints() != 0){
-                ArrayList<Constraint> remaining = var.getConstraints();
+            if(var.getNumConstraints() == 0){
                 var.setLitStatus(false);
+            }
+            else if(var.getNumConstraints() != 0){
+                ArrayList<Constraint> remaining = var.getConstraints();
                 for(Constraint c: remaining){
                     if(c instanceof lightConstraint){
                         var.setLitStatus(true);
