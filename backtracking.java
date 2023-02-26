@@ -94,61 +94,36 @@ public class backtracking {
         //TODO: Solve puzzle
         nodeCount = 0;
         boolean solution = false;
-        ArrayList<Variable> temp;
+        Constraint temp = null;
+        ArrayList<Variable> updatedAvailable = new ArrayList<>(availableVars);
         //Returns the board if it's a complete assignment - base case for recursion
         if(checker()){
             return true;
         }
         else{ //Recursive case
-            Constraint light = null;
-            temp = new ArrayList<>(availableWallVars); //messy, but otherwise I'd get runtime errors like concurrent modifications
-            for(Variable wallVar: temp){
-                if(wallChecks()){ //if we aren't through the unassigned wall adjacent variables but the walls' constraints are all met, we break
-                    break;
-                }
-                wallVar.setLabel('b');
-                for(int r = 0; r < rowNum; r++){
-                    for(int c = 0; c < colNum; c++){
-                        if(board[r][c] == wallVar){
-                            light = getLightConstraint(r,c);
-                            break;
-                        }
-                    }
-                }
-                if(wallVar.partialConsistent()){ //Checks for any other wall violations and light constraint violations
-                    currAssign.push(wallVar);
-                    availableWallVars.remove(wallVar);
-                    solution = solve(currAssign, availableVars, availableWallVars);
-                    if(!solution){ //if solution is invalid, we pop the most recent additon to currassign and re-add it to the list of wall variables
-                        currAssign.pop();
-                        availableWallVars.add(wallVar);
-                        wallVar.setLabel('_');
-                        wallVar.removeConstraint(light); //removes the light constraints from the bulb placed
-                    }
-                }
-            }
-            temp = new ArrayList<>(availableVars);
-            for(Variable var: temp){ //this is where we assign the rest of the cells
-                Variable assign = var;
-                var.setLabel('b');
+            for(Variable var: availableVars){
+                temp = null;
                 for(int r = 0; r < rowNum; r++){
                     for(int c = 0; c < colNum; c++){
                         if(board[r][c] == var){
-                            light = getLightConstraint(r,c);
+                            board[r][c].setLabel('_');
+                            temp = getLightConstraint(r,c);
                             break;
                         }
                     }
-                }
-                if(var.consistent()){
-                    currAssign.push(var);
-                    availableVars.remove(var);
-                    solution = solve(currAssign,availableVars,availableWallVars);
-                    if(!solution){
-                        currAssign.pop();
-                        availableVars.add(assign);
-                        assign.setLabel('_');
-                        assign.removeConstraint(light);
+                    if(temp != null){
+                        break;
                     }
+                }
+                if(var.partialConsistent()){
+                    currAssign.push(var);
+                    updatedAvailable.remove(var);
+                    solution = solve(currAssign,updatedAvailable,availableWallVars);
+                    if(solution){
+                        return true;
+                    }
+                    currAssign.pop().setLabel('b');
+                    removeLightConstraint(temp);
                 }
             }
         }
@@ -220,7 +195,7 @@ public class backtracking {
         for(Variable var: temp){
             if(var.getWallStatus()){
                 wallVars.add(var);
-                assignable.remove(var);
+                //assignable.remove(var); <- re-enable for heuristics
             }
         }
     }
