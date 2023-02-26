@@ -12,9 +12,18 @@ public class Variable{
     private ArrayList<Constraint> myConstraints;
     private int numConstraints;
 
+    private boolean nextToZero;
+
+    private boolean nextToWall;
+
+    private boolean lit;
+
     //Constructor takes a char label as input
-    public Variable(char label){
+    public Variable(char label, boolean zeroWall, boolean wall, boolean illuminated){
         this.label = label;
+        this.nextToZero = zeroWall;
+        this.nextToWall = wall;
+        this.lit = illuminated;
         constraints = new ArrayList<Constraint>();
         numConstraints = 0;
     }
@@ -24,6 +33,18 @@ public class Variable{
 
     public void setLabel(char l){label = l;}
 
+    public boolean getZeroStatus(){return nextToZero;}
+
+    public void setZeroStatus(boolean zero){nextToZero = zero;}
+
+    public boolean getWallStatus(){return nextToWall;}
+
+    public void setWallStatus(boolean wall){nextToWall = wall;}
+
+    public boolean getLitStatus(){return lit;}
+
+    public void setLitStatus(boolean illuminated){lit = illuminated;}
+
     public int getNumConstraints(){return numConstraints;}
 
     //Adds a constraint that affects this variable to its constraint list
@@ -31,6 +52,10 @@ public class Variable{
     public void addConstraint(Constraint cons){
         constraints.add(cons);
         numConstraints = constraints.size();
+    }
+
+    public ArrayList<Constraint> getConstraints() {
+        return constraints;
     }
 
     public void removeConstraint(Constraint cons){
