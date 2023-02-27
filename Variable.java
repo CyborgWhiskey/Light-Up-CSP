@@ -12,6 +12,8 @@ public class Variable{
     private ArrayList<Constraint> myConstraints;
     private int numConstraints;
 
+    private int possibleConstraint;
+
     private int row;
 
     private int col;
@@ -56,6 +58,10 @@ public class Variable{
     public int getRow(){return row;}
 
     public int getCol(){return col;}
+
+    public void setPossibleConstraint(int c){ possibleConstraint = c;}
+
+    public int getPossibleConstraint(){return possibleConstraint;};
 
     //Adds a constraint that affects this variable to its constraint list
     //Is given constraint type object and returns nothing

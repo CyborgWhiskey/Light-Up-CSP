@@ -198,12 +198,17 @@ public class backtracking {
         }
 
         //Heuristic 2: Most Constraining
-        else if(heuristic.equals("H2")){}
+        else if(heuristic.equals("H2")){
+            Collections.sort(temp, Collections.reverseOrder(new ConstrainingComp()));
+        }
 
         //Heuristic 3: Hybrid
         else if(heuristic.equals("H3")){}
 
-        //FORWARD CHECKING LMAO
+        for(Variable vars:temp){System.out.print(vars.getPossibleConstraint() + " ");}
+        System.out.println();
+
+        //FORWARD CHECKING
         //temp.removeIf(Variable::getZeroStatus);
         //temp.removeIf(Variable::getLitStatus);
         return temp;
@@ -258,6 +263,8 @@ public class backtracking {
                 board[r][c] = new Variable(vars[c], false, false, false, r, c);
             }
         }
+
+        reader.nextLine();
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -277,10 +284,11 @@ public class backtracking {
                 if(board[row][col].getLabel() <= '4'){
                     walls.add(getWallConstraint(row, col));
                 }
-                //Else a light constraint is created
-                //else{
-                    //getLightConstraint(row, col);
-                //}
+
+                //Else a possible light constraint is created
+                else{
+                    board[row][col].setPossibleConstraint(getlightConstrainedVars(row, col).size());
+                }
             }
         }
     }
@@ -319,8 +327,23 @@ public class backtracking {
     //Does not include the given cell
     public static lightConstraint getLightConstraint(int row, int col){
         //Stores the list of constrained varriables
-        ArrayList<Variable> vars = new ArrayList<Variable>();
+        ArrayList<Variable> vars = getlightConstrainedVars(row, col);
         lightConstraint constraint;
+
+        //Creates new light constraint containing the list of affected cells and assigns it to the affected cells
+        constraint = new lightConstraint(vars);
+        for(Variable var: vars){
+            var.addConstraint(constraint);
+            var.setLitStatus(true);
+        }
+
+        //Returns constraint
+        return constraint;
+    }
+
+    public static ArrayList<Variable> getlightConstrainedVars(int row, int col){
+        //Stores the list of constrained varriables
+        ArrayList<Variable> vars = new ArrayList<Variable>();
 
         //Current row/column being inspected
         int r;
@@ -354,15 +377,8 @@ public class backtracking {
             c++;
         }
 
-        //Creates new light constraint containing the list of affected cells and assigns it to the affected cells
-        constraint = new lightConstraint(vars);
-        for(Variable var: vars){
-            var.addConstraint(constraint);
-            var.setLitStatus(true);
-        }
-
-        //Returns constraint
-        return constraint;
+        //Returns list of affected variables
+        return vars;
     }
 
     //This is going to be needed if we want to check using constraints, before light constraints just hung around after we unassigned things
