@@ -40,6 +40,11 @@ public class backtracking {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     public static void main(String args[]){
 
+        //Timing variables
+        //Used to time how long each puzzle takes to process
+        long startTime;
+        long endTime;
+
         //Instantiates Lists
         wallVars = new ArrayList<>();
         currAssign = new Stack<>();
@@ -77,18 +82,26 @@ public class backtracking {
 
                     //Attempts to solve puzzle
                     System.out.println("\nSolving Puzzle:");
+                    startTime = System.nanoTime();
                     if(solve(currAssign, assignable, wallVars)){     //Case 1: Solution found
-                        System.out.print("\nTotal number of nodes: ");
-                        System.out.println(nodeCount);
-                        System.out.println("\nPuzzle Solved! Here's the solution:");
+                        endTime = System.nanoTime();
+                        System.out.println("Puzzle Solved! Here's the solution:");
                         printBoard();
+                        System.out.println();
+                        System.out.println("Total number of nodes: " + nodeCount);
+                        System.out.println("Processing Time: " + (endTime-startTime) + "ms");
+                        System.out.println();
                     }
                     else{                                            //Case 2: No solution found
-                        System.out.println(nodeCount);
-                        System.out.println("\nPuzzle couldn't be solved.");
+                        endTime = System.nanoTime();
+                        System.out.println("Puzzle couldn't be solved.");
                         printBoard();
+                        System.out.println();
+                        System.out.println("Total number of nodes: " + nodeCount);
+                        System.out.println("Processing Time: " + (endTime-startTime) + "ms");
+                        System.out.println();
                     }
-
+                    
                     //Resets node count to 0
                     nodeCount = 0;
                 }
@@ -134,6 +147,7 @@ public class backtracking {
                 removeLightConstraint(temp);
             }
         }
+
         return solution;
     }
 
