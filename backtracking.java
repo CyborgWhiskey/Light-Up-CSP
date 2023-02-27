@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -105,7 +106,6 @@ public class backtracking {
     //SOLVING METHODS
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     public static boolean solve(Stack<Variable> currAssign, Stack<Variable> availableVars, ArrayList<Variable> availableWallVars) {
-        //TODO: Solve puzzle
         boolean solution = false;
         Constraint temp = null;
         Stack<Variable> updatedAvailable;
@@ -119,6 +119,7 @@ public class backtracking {
                 Variable var = availableVars.pop();
                 var.setLabel('b');
                 temp = getLightConstraint(var.getRow(), var.getCol());
+
                 if(var.partialConsistent()){
                     updatedAvailable = (Stack<Variable>) availableVars.clone();
                     currAssign.push(var);
@@ -181,26 +182,26 @@ public class backtracking {
     public static Stack<Variable> updateAssignableVars(){
         Stack<Variable> temp = new Stack<>();
 
+        //Default case: no heuristic is used
+        //Triggers if no heruistic was selected or if the entered heuristic does not exist
+        for(int r = 0; r < rowNum; r++){
+            for(int c = 0; c < colNum; c++) {
+                if(board[r][c].getLabel() == '_'){
+                    temp.push(board[r][c]);
+                }
+            }
+        }
+
         //Heuristic 1: Most Constrained
-        if(heuristic.equals("H1")){}
+        if(heuristic.equals("H1")){
+            Collections.sort(temp, Collections.reverseOrder(new ConstraintComp()));
+        }
 
         //Heuristic 2: Most Constraining
         else if(heuristic.equals("H2")){}
 
         //Heuristic 3: Hybrid
         else if(heuristic.equals("H3")){}
-
-        //Default case: no heuristic is used
-        //Triggers if no heruistic was selected or if the entered heuristic does not exist
-        else{
-            for(int r = 0; r < rowNum; r++){
-                for(int c = 0; c < colNum; c++) {
-                    if(board[r][c].getLabel() == '_'){
-                        temp.push(board[r][c]);
-                    }
-                }
-            }
-        }
 
         //FORWARD CHECKING LMAO
         //temp.removeIf(Variable::getZeroStatus);
@@ -257,9 +258,6 @@ public class backtracking {
                 board[r][c] = new Variable(vars[c], false, false, false, r, c);
             }
         }
-
-        //Moves reader one line ahead to be at #End
-        reader.nextLine();
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
