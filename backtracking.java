@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -179,7 +178,15 @@ public class backtracking {
         return true;
     }
 
+    //Checks for and adds the possible assignable variables to a stack and returns it
+    //Also organizes the stack based on the possibly given heuristic
     public static Stack<Variable> updateAssignableVars(){
+        //Local lists used to compute H3
+        ArrayList<Variable> partition;
+        Stack<Variable> out;
+        Variable var;
+
+        //Stack of possible variables
         Stack<Variable> temp = new Stack<>();
 
         //Default case: no heuristic is used
@@ -193,17 +200,48 @@ public class backtracking {
         }
 
         //Heuristic 1: Most Constrained
+        //Orders stack from most constrained to least
         if(heuristic.equals("H1")){
             Collections.sort(temp, Collections.reverseOrder(new ConstraintComp()));
         }
 
         //Heuristic 2: Most Constraining
+        //Orders stack by most constraining value (The one that would cast the most light) to least
         else if(heuristic.equals("H2")){
             Collections.sort(temp, Collections.reverseOrder(new ConstrainingComp()));
         }
 
         //Heuristic 3: Hybrid
-        else if(heuristic.equals("H3")){}
+        //Sorts by least constrained value and sorts each set of equal constrained values by their most constraining
+        else if(heuristic.equals("H3")){
+            //Instatniates temporary stack and list
+            partition = new ArrayList<>();
+            out = new Stack<>();
+
+            //Sorts stack from least constrained variable to most
+            Collections.sort(temp, new ConstraintComp());
+
+            //Loops through stack of variables until empty
+            while(!temp.empty()){
+                //Pops first var and gets its # of constraints, and uses that to loop to get all variables with the same # of constraints
+                //Stores resulkt in an arraylist
+                var = temp.pop();
+                partition.add(var);
+                while(!temp.empty() && temp.peek().getNumConstraints() == var.getNumConstraints()){
+                    partition.add(temp.pop());
+                }
+
+                //Sorts the arraylist by most constraining variable to least and pushes sorted order to the out stack
+                Collections.sort(partition, Collections.reverseOrder(new ConstrainingComp()));
+                for(Variable i : partition){out.push(i);}
+
+                //Clears the partition
+                partition.clear();
+            }
+
+            //Sets temp equal to out so the sorted stack is returned
+            temp = out;
+        }
 
         //FORWARD CHECKING
         //temp.removeIf(Variable::getZeroStatus);
@@ -384,10 +422,8 @@ public class backtracking {
     public static void removeLightConstraint(Constraint oldLight){
         for(Variable var: oldLight.vars){
             var.removeConstraint(oldLight);
-            if(var.getNumConstraints() == 0){
-                var.setLitStatus(false);
-            }
-            else if(var.getNumConstraints() != 0){
+            var.setLitStatus(false);
+            if(var.getNumConstraints() != 0){
                 ArrayList<Constraint> remaining = var.getConstraints();
                 for(Constraint c: remaining){
                     if(c instanceof lightConstraint){

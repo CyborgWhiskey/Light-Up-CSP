@@ -9,7 +9,6 @@ public class Variable{
 
     private char label;
     private ArrayList<Constraint> constraints;
-    private ArrayList<Constraint> myConstraints;
     private int numConstraints;
 
     private int possibleConstraint;
