@@ -205,9 +205,6 @@ public class backtracking {
         //Heuristic 3: Hybrid
         else if(heuristic.equals("H3")){}
 
-        for(Variable vars:temp){System.out.print(vars.getPossibleConstraint() + " ");}
-        System.out.println();
-
         //FORWARD CHECKING
         //temp.removeIf(Variable::getZeroStatus);
         //temp.removeIf(Variable::getLitStatus);
