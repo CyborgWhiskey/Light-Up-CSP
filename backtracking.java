@@ -85,7 +85,7 @@ public class backtracking {
                         printBoard();
                         System.out.println();
                         System.out.println("Total number of nodes: " + nodeCount);
-                        System.out.println("Processing Time: " + (endTime-startTime) + "ms");
+                        System.out.println("Processing Time: " + (endTime-startTime) + "ns");
                         System.out.println();
                     }
                     else{                                            //Case 2: No solution found
@@ -94,7 +94,7 @@ public class backtracking {
                         printBoard();
                         System.out.println();
                         System.out.println("Total number of nodes: " + nodeCount);
-                        System.out.println("Processing Time: " + (endTime-startTime) + "ms");
+                        System.out.println("Processing Time: " + (endTime-startTime) + "ns");
                         System.out.println();
                     }
                     
