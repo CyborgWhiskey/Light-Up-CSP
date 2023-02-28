@@ -15,13 +15,13 @@ public class wallConstraint extends Constraint{
         this.num = Character.getNumericValue(num);
     }
 
-    //Checks if a wall gas the correct number of bulbs adjcent to it
+    //Checks if a wall has the correct number of bulbs adjacent to it
     public boolean satisfied(){
         int count = 0;
 
         //Checks if the vars list exists
         if(vars != null){
-            //Sums the number of b occurences
+            //Sums the number of b occurrences
             for(Variable var: vars){
                 if(var.getLabel() == 'b'){count++;}
             }   
@@ -29,6 +29,21 @@ public class wallConstraint extends Constraint{
 
         //Returns if the number of b's is equal to the number of the wall
         return count == num;
+    }
+
+    public boolean partialSatisfied(){
+        int count = 0;
+
+        //Checks if the vars list exists
+        if(vars != null){
+            //Sums the number of b occurrences
+            for(Variable var: vars){
+                if(var.getLabel() == 'b'){count++;}
+            }
+        }
+
+        //Returns if the number of b's is equal to the number of the wall
+        return count <= num;
     }
     
 }

@@ -30,4 +30,23 @@ public class lightConstraint extends Constraint{
         //Returns true if none of the list contains a b, false otherwise
         return satisfied;
     }
+
+    public boolean partialSatisfied(){
+        //Stores if a bulb is found or not
+        boolean satisfied = true;
+
+        //Checks if the vars list exists
+        if(vars != null){
+            //Searches through every cell in vars, if a bulb is found satisfied is set to false and the loop breaks
+            for(Variable var: vars){
+                if(var.getLabel() == 'b'){
+                    satisfied = false;
+                    break;
+                }
+            }
+        }
+
+        //Returns true if none of the list contains a b, false otherwise
+        return satisfied;
+    }
 }

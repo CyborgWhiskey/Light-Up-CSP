@@ -1,14 +1,10 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Scanner;
-import java.util.Stack;
-import java.util.StringTokenizer;
+import java.util.*;
 
-//Class to implement the backtracking algorithm
+//Class to implement the backtracking algorithim
 //Takes input from the command line to run
-public class backtracking {
+public class forward_checking {
 
     //File input variables
     public static File input;
@@ -58,14 +54,14 @@ public class backtracking {
                 System.out.println("Found file " + args[0]);
                 System.out.println("Starting Processing");
 
-                //If heuristic is passed in, the herustic variable will be set to it
+                //If heuristic is passed in, the heuristic variable will be set to it
                 heuristic = "";
                 if(args.length == 2){
                     heuristic = args[1];
                 }
 
                 //Main loop:
-                //Loops through every board in input file and runs the solution algorithim on it
+                //Loops through every board in input file and runs the solution algorithm on it
                 while(reader.hasNextLine()){
                     //Gets board and prints it
                     getBoard();
@@ -74,12 +70,12 @@ public class backtracking {
 
                     //Gets the constraints for the current board and adds them to affected variables
                     getConstraints();
-                    assignable = updateAssignableVars();
+                    assignable = updateAssignableVars(new Stack<Variable>());
 
                     //Attempts to solve puzzle
                     System.out.println("\nSolving Puzzle:");
                     startTime = System.nanoTime();
-                    if(solve(currAssign, assignable)){     //Case 1: Solution found
+                    if(solve(currAssign, assignable, new Stack<>())){     //Case 1: Solution found
                         endTime = System.nanoTime();
                         System.out.println("Puzzle Solved! Here's the solution:");
                         printBoard();
@@ -113,10 +109,11 @@ public class backtracking {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     //SOLVING METHODS
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
-    public static boolean solve(Stack<Variable> currAssign, Stack<Variable> availableVars) {
+    public static boolean solve(Stack<Variable> currAssign, Stack<Variable> availableVars, Stack<Variable> failures) {
         boolean solution = false;
         Constraint temp = null;
         Stack<Variable> updatedAvailable;
+        Stack<Variable> failedAssigns = (Stack<Variable>) failures.clone();
 
         //Returns the board if it's a complete assignment - base case for recursion
         if(checker()){
@@ -130,19 +127,20 @@ public class backtracking {
                 nodeCount++;
                 if(var.partialConsistent()){
                     updatedAvailable = (Stack<Variable>) availableVars.clone();
+                    //FORWARD CHECKING for variables next to '0' walls
+                    updatedAvailable.removeIf(Variable::getLitStatus);
                     currAssign.push(var);
-                    solution = solve(currAssign,updatedAvailable);
+                    solution = solve(currAssign,updatedAvailable, failures);
                     if(solution){
                         return true;
                     }
-                    currAssign.pop();
+                    failedAssigns.push(currAssign.pop());
                 }
                 var.setLabel('_');
                 removeLightConstraint(temp);
                 nodeCount++;
             }
         }
-
         return solution;
     }
 
@@ -189,7 +187,7 @@ public class backtracking {
 
     //Checks for and adds the possible assignable variables to a stack and returns it
     //Also organizes the stack based on the possibly given heuristic
-    public static Stack<Variable> updateAssignableVars(){
+    public static Stack<Variable> updateAssignableVars(Stack<Variable> failed){
         //Local lists used to compute H3
         ArrayList<Variable> partition;
         Stack<Variable> out;
@@ -197,9 +195,11 @@ public class backtracking {
 
         //Stack of possible variables
         Stack<Variable> temp = new Stack<>();
+        //Stack of previously failed assignments we should ignore
+        Stack<Variable> avoid = (Stack<Variable>) failed.clone();
 
         //Default case: no heuristic is used
-        //Triggers if no heruistic was selected or if the entered heuristic does not exist
+        //Triggers if no heuristic was selected or if the entered heuristic does not exist
         for(int r = 0; r < rowNum; r++){
             for(int c = 0; c < colNum; c++) {
                 if(board[r][c].getLabel() == '_'){
@@ -207,7 +207,10 @@ public class backtracking {
                 }
             }
         }
-
+        while(!avoid.isEmpty()){
+            Variable failure = avoid.pop();
+            temp.remove(failure);
+        }
         //Heuristic 1: Most Constrained
         //Orders stack from most constrained to least
         if(heuristic.equals("H1")){
@@ -223,7 +226,7 @@ public class backtracking {
         //Heuristic 3: Hybrid
         //Sorts by least constrained value and sorts each set of equal constrained values by their most constraining
         else if(heuristic.equals("H3")){
-            //Instatniates temporary stack and list
+            //Instantiates temporary stack and list
             partition = new ArrayList<>();
             out = new Stack<>();
 
@@ -251,6 +254,9 @@ public class backtracking {
             //Sets temp equal to out so the sorted stack is returned
             temp = out;
         }
+
+        //FORWARD CHECKING for variables next to '0' walls
+        temp.removeIf(Variable::getZeroStatus);
         return temp;
     }
 
