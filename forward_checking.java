@@ -4,7 +4,7 @@ import java.util.*;
 
 //Class to implement the backtracking algorithim
 //Takes input from the command line to run
-public class forwardchecking {
+public class forward_checking {
 
     //File input variables
     public static File input;
