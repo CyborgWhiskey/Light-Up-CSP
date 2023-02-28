@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-//Class to implement the backtracking algorithim
+//Class to implement the backtracking algorithm
 //Takes input from the command line to run
 public class backtracking {
 
