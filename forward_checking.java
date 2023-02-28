@@ -4,7 +4,7 @@ import java.util.*;
 
 //Class to implement the backtracking algorithim
 //Takes input from the command line to run
-public class forwardchecking {
+public class forward_checking {
 
     //File input variables
     public static File input;
@@ -81,7 +81,7 @@ public class forwardchecking {
                         printBoard();
                         System.out.println();
                         System.out.println("Total number of nodes: " + nodeCount);
-                        System.out.println("Processing Time: " + (endTime-startTime) + "ms");
+                        System.out.println("Processing Time: " + (endTime-startTime) + "ns");
                         System.out.println();
                     }
                     else{                                            //Case 2: No solution found
@@ -90,7 +90,7 @@ public class forwardchecking {
                         printBoard();
                         System.out.println();
                         System.out.println("Total number of nodes: " + nodeCount);
-                        System.out.println("Processing Time: " + (endTime-startTime) + "ms");
+                        System.out.println("Processing Time: " + (endTime-startTime) + "ns");
                         System.out.println();
                     }
                     
