@@ -28,7 +28,7 @@ public class backtracking {
     public static int colNum;
 
     //Node counter variable
-    public static int nodeCount;
+    public static long nodeCount;
 
     //Stores the current selected heuristic
     public static String heuristic;
